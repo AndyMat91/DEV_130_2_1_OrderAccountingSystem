@@ -1,30 +1,37 @@
 package org.example;
-
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class OrderAccountingSystem {
+public class Products {
+    public Map<Integer, String> article_number = new HashMap<>();
+    public Map<Integer, String> name = new HashMap<>();
+    public Map<Integer, String> colour = new HashMap<>();
+    public Map<Integer, Integer> price = new HashMap<>();
+    public Map<Integer, Integer> stock_balance = new HashMap<>();
+    int key = 1;
 
+    public void loadingProducts (){
 
-    public void productsList (){
-        System.out.println("Загрузите список продуктов и выведите его на экран:");
         try (Connection conn = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/order_accounting_system",
                 "root", "password");
              Statement s = conn.createStatement()) {
             ResultSet rs = s.executeQuery("SELECT * FROM products");
             while (rs.next()) {
-                System.out.println("article_number: " + rs.getString(1)
-                        + ", name: " + rs.getString(2)
-                        + ", colour: " + rs.getString(3)
-                        + ", price: " + rs.getInt(4)
-                        + ", stock_balance: " + rs.getInt(5));
+                article_number.put(key, rs.getString(1));
+                name.put(key, rs.getString(2));
+                colour.put(key, rs.getString(3));
+                price.put(key, rs.getInt(4));
+                stock_balance.put(key, rs.getInt(5));
+                key ++;
             }
         } catch (SQLException e) {
             System.out.println("Exception e: " + e.getMessage());
         }
     }
 
-    public void productsListWithId (int id){
+    public void loadingProductsWithId (int id){
         try (Connection conn = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/order_accounting_system",
                 "root", "password");
@@ -33,9 +40,11 @@ public class OrderAccountingSystem {
                     "on order_accounting_system.products.article_number = order_accounting_system.order_positions.item_number\n" +
                     "where order_accounting_system.order_positions.order_entry_code = " + id);
             while (rs.next()) {
-                    System.out.println("order_entry_code: " + rs.getString(1) +
-                            ", name: " + rs.getString(2)
-                            + ((rs.getString(3).equals("")) ? "" : ", colour: " + rs.getString(3)));
+                name.put(key, rs.getString(2));
+                colour.put(key, rs.getString(3));
+                System.out.println("order_entry_code: " + rs.getString(1) +
+                        ", name: " + rs.getString(2)
+                        + ((rs.getString(3).equals("")) ? "" : ", colour: " + rs.getString(3)));
             }
         } catch (SQLException e) {
             System.out.println("Exception e: " + e.getMessage());
@@ -71,5 +80,20 @@ public class OrderAccountingSystem {
             System.out.println("Exception e: " + e.getMessage());
         }
     }
+
+
+
+    public void printAll() {
+        for (int k = 1; k != article_number.size() + 1; k++) {
+            System.out.println(
+                    "article_number = " + article_number.get(k) +
+                    ", name = " + name.get(k) +
+                    ", colour = " + colour.get(k) +
+                    ", price = " + price.get(k) +
+                    ", stock_balance = " + stock_balance.get(k)
+            );
+        }
+    }
+
 
 }
