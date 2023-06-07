@@ -12,10 +12,11 @@ public class Main {
         System.out.println("--------------------------------------------------------------------------");
 
         System.out.println("Загрузка и печать списка наименований товаров заказов с заданными id:");
-        // тут печать я сделал прямиком в методе
+        // тут печать я сделал как прямиком в методе загрузки, так и отдельным методом....
         test2.loadingProductsWithId(1);
         test2.loadingProductsWithId(2);
         test2.loadingProductsWithId(3);
+        test2.printProductName();
         System.out.println("--------------------------------------------------------------------------");
 
         System.out.println("Регистрация заказа:");
