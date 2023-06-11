@@ -1,105 +1,99 @@
 package org.example;
 
-import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Products {
-    public Map<Integer, String> article_number = new HashMap<>();
-    public Map<Integer, String> name = new HashMap<>();
-    public Map<Integer, String> colour = new HashMap<>();
-    public Map<Integer, Integer> price = new HashMap<>();
-    public Map<Integer, Integer> stock_balance = new HashMap<>();
-    int key = 1;
+    private String articleNumber;
+    private String name;
+    private String colour;
+    private int price;
+    private int stockBalance;
+    private Set<OrderPositions> orderPositions;
 
-    public void loadingProducts() {
-
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/order_accounting_system",
-                "root", "password");
-             Statement s = conn.createStatement()) {
-            ResultSet rs = s.executeQuery("SELECT * FROM products");
-            while (rs.next()) {
-                article_number.put(key, rs.getString(1));
-                name.put(key, rs.getString(2));
-                colour.put(key, rs.getString(3));
-                price.put(key, rs.getInt(4));
-                stock_balance.put(key, rs.getInt(5));
-                key++;
-            }
-        } catch (SQLException e) {
-            System.out.println("Exception e: " + e.getMessage());
-        }
+    public Products(String article_number, String name, String colour, int price, int stock_balance) {
+        this.articleNumber = article_number;
+        this.colour = colour;
+        this.name = name;
+        this.price = price;
+        this.stockBalance = stock_balance;
+        orderPositions = new HashSet<>();
     }
 
-    public void loadingProductsWithId(int id) {
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/order_accounting_system",
-                "root", "password");
-             Statement s = conn.createStatement()) {
-            ResultSet rs = s.executeQuery("select order_entry_code, name, colour from order_accounting_system.products left join order_accounting_system.order_positions\n" +
-                    "on order_accounting_system.products.article_number = order_accounting_system.order_positions.item_number\n" +
-                    "where order_accounting_system.order_positions.order_entry_code = " + id);
-            while (rs.next()) {
-                name.put(key, rs.getString(2));
-                colour.put(key, rs.getString(3));
-                key++;
-               /* System.out.println("order_entry_code: " + rs.getString(1) +
-                        ", name: " + rs.getString(2)
-                        + ((rs.getString(3).equals("")) ? "" : ", colour: " + rs.getString(3))); */
-            }
-        } catch (SQLException e) {
-            System.out.println("Exception e: " + e.getMessage());
-        }
+    public Set<OrderPositions> getOrderPositions() {
+        return orderPositions;
     }
 
-    public void orderRegistration(String fullName, String phoneNumber, String email, String deliveryAddress, String article, int quantity) {
-
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/order_accounting_system",
-                "root", "password");
-             Statement s = conn.createStatement()) {
-            int max = 0;
-            int price = 0;
-            ResultSet maxId = s.executeQuery("select max(id)+1 from order_accounting_system.orders");
-            while (maxId.next()) {
-                max = maxId.getInt(1);
-            }
-
-            ResultSet p = s.executeQuery("select price from order_accounting_system.products where article_number = " + article);
-            while (p.next()) {
-                price = p.getInt(1);
-            }
-
-            s.executeUpdate("insert into order_accounting_system.orders values\n" +
-                    " (" + max + ", curdate(), '" + fullName + "', '" + phoneNumber + "', '" + email + "', '" + deliveryAddress + "', 'P', null)");
-
-            s.executeUpdate("insert into order_accounting_system.order_positions values\n" +
-                    " (" + max + ", '" + article + "', " + price + ", " + quantity + ")");
-
-            System.out.println("Ваш заказ успешно зарегистрирован!");
-        } catch (SQLException e) {
-            System.out.println("Заказ зарегистрировать не удалось!"+"\n"+"Exception e: " + e.getMessage());
-        }
+    public void setOrderPositions(Set<OrderPositions> orderPositions) {
+        this.orderPositions = orderPositions;
     }
-    
-    public void printAll() {
-        for (int k = 1; k != article_number.size() + 1; k++) {
-            System.out.println(
-                    "article_number = " + article_number.get(k) +
-                            ", name = " + name.get(k) +
-                            ", colour = " + colour.get(k) +
-                            ", price = " + price.get(k) +
-                            ", stock_balance = " + stock_balance.get(k)
-            );
-        }
+
+    public String getArticleNumber() {
+        return articleNumber;
+    }
+
+    public void setArticleNumber(String articleNumber) {
+        this.articleNumber = articleNumber;
+    }
+
+    public String getColour() {
+        return colour;
+    }
+
+    public void setColour(String colour) {
+        this.colour = colour;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getStockBalance() {
+        return stockBalance;
+    }
+
+    public void setStockBalance(int stockBalance) {
+        this.stockBalance = stockBalance;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Products products = (Products) o;
+        return Objects.equals(articleNumber, products.articleNumber) && Objects.equals(colour, products.colour) && Objects.equals(name, products.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(articleNumber, colour, name);
+    }
+
+    @Override
+    public String toString() {
+        return "Products{" +
+                "article_number='" + articleNumber + '\'' +
+                ", name='" + name + '\'' +
+                ", colour='" + colour + '\'' +
+                ", price=" + price +
+                ", stock_balance=" + stockBalance +
+                '}';
     }
 
     public void printProductName() {
-        for (int k = 1; k != name.size() + 1; k++) {
-            System.out.println(
-                    "name = " + name.get(k) + (colour.get(k).equals("") ? "" : ", colour: " + colour.get(k))
-            );
+        System.out.println("Products{name = " + name + (colour.equals("") ? "" : ", colour: " + colour + '}'));
         }
     }
-}
